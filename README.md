@@ -1,43 +1,31 @@
-# Portfolio Trade Compliance System
+# Portfolio Trade Order Compliance & Execution Checker
 
 ## Overview
-A Python-based application that validates Buy and Sell orders against predefined portfolio compliance rules before approving trades.
+A Python application that validates proposed portfolio trades and generates a decision with a reason for each trade.
 
 ## Features
-- Validates trade quantity, price, and action.
-- Checks restricted securities.
-- Verifies sufficient holdings for Sell orders.
-- Checks available cash for Buy orders.
-- Monitors maximum position concentration.
-- Flags trades requiring manual approval.
-- Displays trade decisions and rejection reasons.
+- Manual trade entry
+- Bulk CSV trade processing
+- Restricted security validation
+- Buy affordability checks
+- Sell holdings validation
+- Maximum position concentration check
+- Automatic decision and reason generation
+- Export results to CSV
 
-## Technology
+## Technologies
 - Python 3
-- Dictionaries and Lists
-- Conditional Statements and Loops
-- Command-Line Interface (CLI)
+- CSV module (built-in)
 
-## Compliance Decisions
-- **Approved:** All compliance checks passed.
-- **Rejected:** Trade violates compliance rules.
-- **Needs Manual Sign-off:** Position concentration exceeds the permitted limit.
-
-## Portfolio Configuration
-
-| Attribute | Value |
-|---|---|
-| Portfolio ID | P101 |
-| Cash Balance | 500,000 |
-| Restricted Securities | Airtel, Coco Cola |
-| Maximum Position | 30% |
+## Project Files
+- `main.py` – Main application
+- `trades.csv` – Input trade data
+- `trade_results.csv` – Generated results
 
 ## How to Run
 
-1. Install Python 3.
-2. Save the code as `main.py`.
-3. Open the terminal.
-4. Execute:
+1. Keep `main.py` and `trades.csv` in the same folder.
+2. Run the application:
 
    ```bash
    python main.py
