@@ -1,3 +1,6 @@
+
+import csv
+
 portfolios = {
     "P101": {
         "cash_balance": 500000,
@@ -46,14 +49,13 @@ def check_trade(portfolio, security_id, action, quantity, price):
         if existing_quantity < quantity:
             return "Rejected", "Insufficient holdings to sell."
 
-
     # STEP 4
     if action == "Buy":
         purchase_cost = quantity * price
         if purchase_cost > portfolio["cash_balance"]:
             return "Rejected", "Insufficient cash for this buy order."
 
-    #STEP 5
+    # STEP 5
     if action == "Buy":
         post_trade_cash = portfolio["cash_balance"] - purchase_cost
         post_trade_quantity = existing_quantity + quantity
@@ -68,10 +70,11 @@ def check_trade(portfolio, security_id, action, quantity, price):
         position_pct = (post_trade_security_value / total_portfolio_value_after) * 100
 
         if position_pct > portfolio["max_position_pct"]:
-            return ("Needs Manual Sign-off","Exceeds maximum position concentration — requires approval.")
+            return ("Needs Manual Sign-off", "Exceeds maximum position concentration — requires approval.")
 
     # STEP 6
     return "Approved", "All compliance checks passed."
+
 
 def display_result(portfolio_id, security_id, action, quantity, price, decision, reason):
     print("Portfolio ID:", portfolio_id)
@@ -81,6 +84,8 @@ def display_result(portfolio_id, security_id, action, quantity, price, decision,
     print("Price:", price)
     print("Decision:", decision)
     print("Reason:", reason)
+    print()
+
 
 def enter_trade():
     portfolio_id = input("Enter Portfolio ID: ")
@@ -92,21 +97,75 @@ def enter_trade():
     quantity = float(input("Enter Quantity: "))
     price = float(input("Enter Price: "))
     portfolio = portfolios[portfolio_id]
-    decision, reason = check_trade(portfolio, security_id, action,quantity, price)
-    display_result(portfolio_id, security_id, action,quantity, price, decision, reason)
+    decision, reason = check_trade(portfolio, security_id, action, quantity, price)
+    display_result(portfolio_id, security_id, action, quantity, price, decision, reason)
+
+
+def process_csv():
+
+    results = []
+    with open("trades.csv", "r", newline="") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+            portfolio_id = row["portfolio_id"]
+            security_id = row["security_id"]
+            action = row["action"]
+
+            try:
+                quantity = float(row["quantity"])
+                price = float(row["price"])
+            except (ValueError, TypeError):
+                decision = "Rejected"
+                reason = "Invalid trade data."
+            else:
+                portfolio = portfolios.get(portfolio_id)
+                if portfolio is None:
+                    decision = "Not Processed"
+                    reason = "Portfolio reference data not found."
+                else:
+                    decision, reason = check_trade(
+                        portfolio, security_id, action, quantity, price
+                    )
+            result = {
+                "portfolio_id": portfolio_id,
+                "security_id": security_id,
+                "action": action,
+                "quantity": row["quantity"],
+                "price": row["price"],
+                "decision": decision,
+                "reason": reason
+            }
+            results.append(result)
+            display_result(
+                portfolio_id, security_id, action,
+                row["quantity"], row["price"], decision, reason
+            )
+    with open("trade_results.csv", "w", newline="") as file:
+        fieldnames = ["portfolio_id","security_id","action","quantity","price","decision","reason"]
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+
+    print("\nTotal trades processed:", len(results))
+    print("Results saved in trade_results.csv")
+
 
 def main():
     while True:
         print("\n1. Enter New Trade")
         print("2. View Portfolio")
-        print("3. Exit")
-        choice = input("Enter your choice: ")
+        print("3. Process CSV File") 
+        print("4. Exit") 
 
+        choice = input("Enter your choice: ")
         if choice == "1":
             enter_trade()
         elif choice == "2":
             print(portfolios)
         elif choice == "3":
+            process_csv()
+        elif choice == "4":
             print("Thank you!")
             break
         else:
